@@ -54,6 +54,7 @@ pub async fn export_run_json(state: AppStateRef<'_>, run_id: i64) -> Result<Stri
 }
 
 #[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DashboardStats {
     pub last_run: Option<mailscope_core::models::TestRun>,
     pub total_runs: i64,

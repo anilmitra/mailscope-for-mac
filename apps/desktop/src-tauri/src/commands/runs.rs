@@ -70,6 +70,7 @@ pub async fn get_run(state: AppStateRef<'_>, id: i64) -> Result<TestRun> {
 }
 
 #[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RunToken {
     pub subject_token: String,
     pub body_token: String,
