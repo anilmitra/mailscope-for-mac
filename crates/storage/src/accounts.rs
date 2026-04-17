@@ -87,7 +87,7 @@ pub fn remove_account(db: &Database, id: i64) -> Result<()> {
     Ok(())
 }
 
-pub async fn check_and_update_health(db: &Database, id: i64) -> Result<ConnectedAccount> {
+pub fn check_and_update_health(db: &Database, id: i64) -> Result<ConnectedAccount> {
     // TODO: actually attempt to connect and verify credentials
     let conn = db.conn()?;
     conn.execute(

@@ -63,9 +63,7 @@ pub async fn check_account_health(
     id: i64,
 ) -> Result<ConnectedAccount> {
     let db = state.db.lock().map_err(db_err)?;
-    db_accounts::check_and_update_health(&db, id)
-        .await
-        .map_err(db_err)
+    db_accounts::check_and_update_health(&db, id).map_err(db_err)
 }
 
 #[tauri::command]

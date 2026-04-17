@@ -68,21 +68,21 @@ pub struct DashboardStats {
 pub async fn get_dashboard_stats(state: AppStateRef<'_>) -> Result<DashboardStats> {
     let db = state.db.lock().map_err(db_err)?;
     let runs = db_runs::list_runs(&db, 50).map_err(db_err)?;
-    let completed: Vec<_> = runs.iter().filter(|r| r.status == "complete").collect();
-
     let total_runs = runs.len() as i64;
-    let recent_runs = runs.into_iter().take(10).collect();
-
-    let (avg_inbox, avg_spam, avg_missing) = if completed.is_empty() {
-        (0.0, 0.0, 0.0)
-    } else {
-        let n = completed.len() as f64;
-        (
-            completed.iter().map(|r| r.inbox_rate.unwrap_or(0.0)).sum::<f64>() / n,
-            completed.iter().map(|r| r.spam_rate.unwrap_or(0.0)).sum::<f64>() / n,
-            completed.iter().map(|r| r.missing_rate.unwrap_or(0.0)).sum::<f64>() / n,
-        )
+    let (avg_inbox, avg_spam, avg_missing) = {
+        let completed: Vec<_> = runs.iter().filter(|r| r.status == "complete").collect();
+        if completed.is_empty() {
+            (0.0, 0.0, 0.0)
+        } else {
+            let n = completed.len() as f64;
+            (
+                completed.iter().map(|r| r.inbox_rate.unwrap_or(0.0)).sum::<f64>() / n,
+                completed.iter().map(|r| r.spam_rate.unwrap_or(0.0)).sum::<f64>() / n,
+                completed.iter().map(|r| r.missing_rate.unwrap_or(0.0)).sum::<f64>() / n,
+            )
+        }
     };
+    let recent_runs = runs.into_iter().take(10).collect();
 
     let last_run = db_runs::get_last_run(&db).map_err(db_err)?;
     let provider_summary = if let Some(ref run) = last_run {
