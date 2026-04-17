@@ -6,7 +6,11 @@ import {
   TrendingUp,
   Settings,
   FlaskConical,
+  Moon,
+  Sun,
+  Monitor,
 } from "lucide-react";
+import { useTheme, type Theme } from "../../hooks/useTheme";
 
 const navItems = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -15,8 +19,28 @@ const navItems = [
   { to: "/settings", icon: Settings, label: "Settings" },
 ];
 
+const themeIcon: Record<Theme, typeof Moon> = {
+  dark: Moon,
+  light: Sun,
+  system: Monitor,
+};
+
+const nextTheme: Record<Theme, Theme> = {
+  dark: "light",
+  light: "system",
+  system: "dark",
+};
+
+const themeLabel: Record<Theme, string> = {
+  dark: "Dark",
+  light: "Light",
+  system: "System",
+};
+
 export default function Sidebar() {
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
+  const ThemeIcon = themeIcon[theme];
 
   return (
     <aside className="w-52 flex-shrink-0 bg-surface/80 backdrop-blur border-r border-surface-border flex flex-col select-none">
@@ -57,8 +81,20 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Footer */}
-      <div className="px-4 pb-4 text-xs text-white/25">v0.1.0</div>
+      {/* Footer — theme toggle + version */}
+      <div className="px-3 pb-4 flex items-center justify-between">
+        <span className="text-xs text-white/25">v0.1.0</span>
+        <button
+          onClick={() => setTheme(nextTheme[theme])}
+          title={`Theme: ${themeLabel[theme]} — click to switch`}
+          className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs
+            text-white/40 hover:text-white/70 hover:bg-surface-secondary
+            transition-colors"
+        >
+          <ThemeIcon className="w-3.5 h-3.5" />
+          <span>{themeLabel[theme]}</span>
+        </button>
+      </div>
     </aside>
   );
 }

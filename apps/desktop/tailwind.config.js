@@ -4,19 +4,23 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Remapped to CSS vars so dark/light theme works without touching components.
+        // In dark mode --c-white ≈ #f5f5f7; in light mode it swaps to #1c1c1e so
+        // text-white/50, text-white/90, etc. all work correctly in both themes.
+        white: "rgb(var(--c-white) / <alpha-value>)",
         surface: {
-          DEFAULT: "#1c1c1e",
-          secondary: "#2c2c2e",
-          tertiary: "#3a3a3c",
-          border: "#48484a",
+          DEFAULT: "rgb(var(--c-surface) / <alpha-value>)",
+          secondary: "rgb(var(--c-surface-secondary) / <alpha-value>)",
+          tertiary: "rgb(var(--c-surface-tertiary) / <alpha-value>)",
+          border: "rgb(var(--c-surface-border) / <alpha-value>)",
         },
         accent: {
-          blue: "#0a84ff",
-          green: "#30d158",
-          orange: "#ff9f0a",
-          red: "#ff453a",
-          purple: "#bf5af2",
-          yellow: "#ffd60a",
+          blue: "rgb(var(--c-accent-blue) / <alpha-value>)",
+          green: "rgb(var(--c-accent-green) / <alpha-value>)",
+          orange: "rgb(var(--c-accent-orange) / <alpha-value>)",
+          red: "rgb(var(--c-accent-red) / <alpha-value>)",
+          purple: "rgb(var(--c-accent-purple) / <alpha-value>)",
+          yellow: "rgb(var(--c-accent-yellow) / <alpha-value>)",
         },
       },
       fontFamily: {
