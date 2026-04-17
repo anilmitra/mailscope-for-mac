@@ -1,0 +1,21 @@
+// Re-export all types from the desktop app for use across packages
+export type {
+  Provider,
+  AuthType,
+  AccountStatus,
+  SendingMode,
+  RunStatus,
+  Placement,
+  DiagnosticSeverity,
+  CheckType,
+  ConnectedAccount,
+  SeedGroup,
+  SeedGroupMember,
+  SendingProfile,
+  TestRun,
+  TestResult,
+  DiagnosticIssue,
+  RunToken,
+  PlacementSummary,
+  DashboardStats,
+} from "../../apps/desktop/src/types/index.js";

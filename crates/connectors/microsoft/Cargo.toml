@@ -1,0 +1,17 @@
+[package]
+name = "mailscope-connector-microsoft"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+chrono = { workspace = true }
+tracing = { workspace = true }
+async-trait = { workspace = true }
+reqwest = { workspace = true }
+url = { workspace = true }
+mailscope-core = { path = "../../core" }

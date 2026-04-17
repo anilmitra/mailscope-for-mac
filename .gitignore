@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+target/
+*.dmg
+*.app
+
+# Tauri
+apps/desktop/src-tauri/target/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Test coverage
+coverage/
+
+# TypeScript build info
+*.tsbuildinfo
