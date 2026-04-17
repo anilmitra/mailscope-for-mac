@@ -15,7 +15,7 @@ impl Database {
             )
         });
         let pool = Pool::builder()
-            .max_size(4)
+            .max_size(1)
             .build(manager)
             .context("failed to build SQLite connection pool")?;
 
