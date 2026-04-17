@@ -30,3 +30,4 @@ oauth2 = "4"
 base64 = "0.22"
 url = "2"
 regex = "1"
+tokio-util = { version = "0.7", features = ["compat"] }

@@ -1,4 +1,6 @@
 use async_trait::async_trait;
+use futures::StreamExt;
+use tokio_util::compat::TokioAsyncReadCompatExt;
 use mailscope_core::{
     connector::{ConnectorError, ConnectorResult, MailboxConnector, MailboxFolder, SpecialUse},
     models::{FindCriteria, MatchedMessage},
@@ -54,6 +56,7 @@ impl MailboxConnector for ImapConnector {
         let tcp = tokio::net::TcpStream::connect(format!("{}:{}", self.host, self.port))
             .await
             .map_err(|e| ConnectorError::NetworkError(e.to_string()))?;
+        let tcp = tcp.compat();
 
         let tls = async_native_tls::TlsConnector::new();
         let tls_stream = tls
@@ -74,6 +77,7 @@ impl MailboxConnector for ImapConnector {
         let tcp = tokio::net::TcpStream::connect(format!("{}:{}", self.host, self.port))
             .await
             .map_err(|e| ConnectorError::NetworkError(e.to_string()))?;
+        let tcp = tcp.compat();
 
         let tls = async_native_tls::TlsConnector::new();
         let tls_stream = tls
@@ -93,7 +97,9 @@ impl MailboxConnector for ImapConnector {
             .map_err(|e| ConnectorError::ProviderError(e.to_string()))?;
 
         let mut folders = vec![];
-        for name in names.iter() {
+        let mut names = names;
+        while let Some(name_result) = names.next().await {
+            let name = name_result.map_err(|e| ConnectorError::ProviderError(e.to_string()))?;
             let n = name.name().to_string();
             let su = Self::special_use_from_name(&n);
             folders.push(MailboxFolder {
@@ -102,6 +108,8 @@ impl MailboxConnector for ImapConnector {
                 special_use: su,
             });
         }
+        drop(names);
+
         session
             .logout()
             .await
@@ -119,6 +127,7 @@ impl MailboxConnector for ImapConnector {
         let tcp = tokio::net::TcpStream::connect(format!("{}:{}", self.host, self.port))
             .await
             .map_err(|e| ConnectorError::NetworkError(e.to_string()))?;
+        let tcp = tcp.compat();
 
         let tls = async_native_tls::TlsConnector::new();
         let tls_stream = tls
@@ -151,10 +160,13 @@ impl MailboxConnector for ImapConnector {
                     .await
                     .map_err(|e| ConnectorError::ProviderError(e.to_string()))?;
 
-                if let Some(msg) = messages.iter().next() {
-                    let headers = parse_raw_headers(
-                        msg.header().unwrap_or_default(),
-                    );
+                let mut messages = messages;
+                let msg_opt = messages.next().await;
+                drop(messages);
+
+                if let Some(msg_result) = msg_opt {
+                    let msg = msg_result.map_err(|e| ConnectorError::ProviderError(e.to_string()))?;
+                    let headers = parse_raw_headers(msg.header().unwrap_or_default());
                     session.logout().await.ok();
                     return Ok(Some(MatchedMessage {
                         remote_id: uid.to_string(),
@@ -178,6 +190,7 @@ impl MailboxConnector for ImapConnector {
         let tcp = tokio::net::TcpStream::connect(format!("{}:{}", self.host, self.port))
             .await
             .map_err(|e| ConnectorError::NetworkError(e.to_string()))?;
+        let tcp = tcp.compat();
 
         let tls = async_native_tls::TlsConnector::new();
         let tls_stream = tls
@@ -196,17 +209,22 @@ impl MailboxConnector for ImapConnector {
             .await
             .map_err(|e| ConnectorError::ProviderError(e.to_string()))?;
 
-        let messages = session
+        let mut messages = session
             .uid_fetch(remote_message_id, "RFC822.HEADER")
             .await
             .map_err(|e| ConnectorError::ProviderError(e.to_string()))?;
 
-        let headers = messages
-            .iter()
-            .next()
-            .and_then(|m| m.header())
-            .map(parse_raw_headers)
-            .unwrap_or_default();
+        let msg_opt = messages.next().await;
+        drop(messages);
+
+        let headers = if let Some(msg_result) = msg_opt {
+            msg_result
+                .ok()
+                .and_then(|m| m.header().map(parse_raw_headers))
+                .unwrap_or_default()
+        } else {
+            HashMap::new()
+        };
 
         session.logout().await.ok();
         Ok(headers)
