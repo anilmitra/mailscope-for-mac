@@ -21,6 +21,7 @@ npm-debug.log*
 .env
 .env.local
 .env.*.local
+.env.sh
 
 # Editor directories
 .vscode/
